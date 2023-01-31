@@ -1,31 +1,38 @@
-import React, { useReducer } from "react";
-import { useState } from "react";
-import {userReducer} from "../redux/userSlice.js"
+import { nanoid } from "@reduxjs/toolkit";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addPost } from "../redux/postSlice";
 const initialState = {
   title: "",
   author: "",
   content: "",
 };
 const AddPostForm = () => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState(initialState);
+  const { users } = useSelector((state) => state.user);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
+      id: nanoid(),
       [name]: value,
     });
   };
 
   console.log(formData);
+
   const handleSubmit = (e) => {
     e.preventdefault();
+    dispatch(addPost(formData));
+    setFormData(initialState);
   };
 
   return (
     <div className="form-section">
       <h2>Add a New Post</h2>
-      <form>
-        <label htmlFor="postTitle">Post</label>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="postTitle">Post Title</label>
         <input
           type="text"
           id="postTitle"
@@ -34,12 +41,12 @@ const AddPostForm = () => {
           value={formData.title}
         />
 
-        <label htmlFor="postAuthor">Author</label>
+        <label htmlFor="postAuthor">Author:</label>
         <select
           name="author"
           id="postAuthor"
-          onChange={handleChange}
           value={formData.author}
+          onChange={handleChange}
         >
           <option value=""> --Select Author--</option>
 
@@ -50,20 +57,21 @@ const AddPostForm = () => {
           ))}
         </select>
 
-        <label htmlFor="postCOntent"> Content :</label>
+        <label htmlFor="postContent"> Content :</label>
         <textarea
           id="postContent"
-          name="Content"
+          name="content"
           value={formData.content}
           onChange={handleChange}
         ></textarea>
 
-        <button type="submit">Save Post</button>
+        <button type="submit" disabled={!formData.title || !formData.content}>
+          Save Post
+        </button>
       </form>
     </div>
   );
 
-  <button type="submit">Save Post</button>;
 };
 
 export default AddPostForm;
